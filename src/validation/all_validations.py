@@ -7,20 +7,35 @@ logger = setup_logger()
 
 def perform_validation(validation_type, source_sql, target_sql, context):
     """ Perform the appropriate validation based on the validation type """
-
+    logger.info("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY")
     if validation_type.lower() == "metadata":
         # Metadata validation - compare column names and types
-        logger.info(f"Performing metadata validation with source SQL: {source_sql} and target SQL: {target_sql}")
-        # Assume the `get_metadata` function fetches column names and data types
-        source_metadata = get_metadata(source_sql, context.source_location, context.source_object)
-        target_metadata = get_metadata(target_sql, context.target_location, context.target_object)
+        logger.info(f"Performing metadata validation for source: {context.source_object} and target: {context.target_object}")
+    
+        # Fetch metadata for source and target
+        source_metadata = get_metadata(context.source_location, context.source_object)
+        target_metadata = get_metadata(context.target_location, context.target_object)
+
+        # Log first 5 rows of metadata to avoid overlogging
+        logger.info(f"Source Metadata (first 5 rows): {source_metadata[:5]}")
+        logger.info(f"Target Metadata (first 5 rows): {target_metadata[:5]}")
+    
         context.source_metadata = source_metadata
         context.target_metadata = target_metadata
-        
+
+        # Sort metadata by column name to ensure the comparison is order-agnostic
+        sorted_source_metadata = sorted(source_metadata, key=lambda x: x[0].lower())  # Sort by column name
+        sorted_target_metadata = sorted(target_metadata, key=lambda x: x[0].lower())  # Sort by column name
+    
         # Compare metadata (columns and types)
-        assert source_metadata == target_metadata, f"Metadata mismatch: {source_metadata} vs {target_metadata}"
-        logger.info("Metadata validation passed.")
-        return "Metadata validation passed"
+        if sorted_source_metadata == sorted_target_metadata:
+            logger.info("Metadata validation passed: Source and target have the same metadata.")
+            return "Metadata validation passed: Source and target have the same metadata"
+        else:
+            logger.error("Metadata mismatch found:")
+            logger.error(f"Source Metadata: {sorted_source_metadata}")
+            logger.error(f"Target Metadata: {sorted_target_metadata}")
+        return "Metadata mismatch"
 
     elif validation_type.lower() == "data count":
         # Row count validation - compare number of records

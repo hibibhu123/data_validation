@@ -22,3 +22,7 @@ env/
 
 #logs
 logs/
+
+config/
+
+features/validation.feature
