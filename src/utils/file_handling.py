@@ -1,0 +1,100 @@
+import csv
+import os
+from utils.logging_setup import setup_logger
+
+# Initialize the logger
+logger = setup_logger()
+
+def read_csv_data(file_path):
+    """
+    Reads the CSV file and returns a list of dictionaries representing the rows.
+
+    Args:
+        file_path (str): Path to the CSV file.
+
+    Returns:
+        list: A list of dictionaries where each dictionary represents a row in the CSV file.
+    """
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"CSV file not found: {file_path}")
+
+    data = []
+    with open(file_path, mode='r', newline='', encoding='utf-8-sig') as file:  # Note the encoding 'utf-8-sig'
+        reader = csv.DictReader(file)
+        for row in reader:
+            # Strip any potential BOM from the keys
+            data.append(row)
+    return data
+
+#To read "config" sheet from the input CSV file
+def read_config_data(file_path):
+    """
+    Reads the second sheet or configuration part of the CSV file and returns parameters.
+
+    Args:
+        file_path (str): Path to the CSV file.
+    
+    Returns:
+        dict: A dictionary containing configuration parameters.
+    """
+    config_data = {}
+    with open(file_path, mode='r', newline='', encoding='utf-8-sig') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            # Assuming the config is just key-value pairs like input_csv_template_path, feature_file_output_path
+            for key, value in row.items():
+                config_data[key.strip()] = value.strip()
+
+    return config_data
+
+def generate_feature_file(csv_data, feature_file_path):
+    """
+    Filters the CSV data to only include rows with 'Action == yes' and generates a Gherkin feature file.
+    The 'Action' column will not be included in the feature file.
+
+    Args:
+        csv_data (list): A list of dictionaries representing the rows in the CSV file.
+        feature_file_path (str): Path where the generated feature file will be saved.
+    """
+
+    # Define the Gherkin scenario template
+    feature_template = """Feature: Data Validation
+
+    Scenario Outline: DataValidation
+        Given I connect to the source "<Source_Object>" in "<Source_Location>"
+        And I connect to the target "<Target_Object>" in "<Target_Location>"
+
+        When I perform "<Validation_Type>" validation using source SQL "<Source_SQL>" and target SQL "<Target_SQL>"
+        Then the "<Validation_Type>" validation between source and target is successful
+
+    Examples:
+    """
+
+    # Filter the rows based on 'Action' column being 'yes'
+    filtered_data = [row for row in csv_data if row.get("Action", "").lower() == "yes"]
+
+    # If no rows with 'Action == yes' found, log and return
+    if not filtered_data:
+        logger.info("No data with 'Action == yes' found in the CSV. No feature file generated.")
+        return
+
+    # Add the headers (column names) from the filtered CSV data as the first row in the Examples section
+    # Remove the 'Action' column from headers before writing
+    headers = [header for header in filtered_data[0].keys() if header.lower() not in ["action", "sl_no"] ]
+    header_row = "    | " + " | ".join(headers) + " |"  # Format the headers for the feature file
+    feature_template += "\n" + header_row  # Append headers to the feature template
+
+    # Add examples from filtered CSV data
+    for row in filtered_data:
+        # Remove the 'Action' column from each row before adding to examples
+        example_row = "    | " + " | ".join([row[field] for field in headers]) + " |"  # Format each row of data
+        feature_template += "\n" + example_row  # Append each example row to the feature template
+        logger.debug(f"Added example row: {example_row}")
+
+    # Write the generated feature to a new file
+    with open(feature_file_path, 'w', encoding='utf-8') as feature_file:
+        feature_file.write(feature_template)
+
+    logger.info(f"Feature file {feature_file_path} generated successfully.")
+    logger.info(f"Generated Feature File Content:\n{feature_template}\n")
+

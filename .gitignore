@@ -1,0 +1,21 @@
+
+# Python
+*.pyc
+*__pycache__/
+
+#pytest
+.pytest_cache/
+
+# IDE specific folders
+.vscode/
+
+# .env file for environment variables
+.env
+
+#Report output
+allure-report/
+reports/
+
+# Virtual environments
+venv/
+env/
