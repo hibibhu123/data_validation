@@ -1,44 +1,32 @@
 import logging
-import os
 
-def setup_logger(log_file='logs/validation.log', log_level=logging.INFO):
+def setup_logger(log_file='logs/validation.log'):
     """
-    Set up the logger to log messages to a file and console.
-
-    Args:
-    - log_file (str): Path to the log file.
-    - log_level (logging.LEVEL): Logging level (default is INFO).
-
-    Returns:
-    - logger (logging.Logger): Configured logger.
+    Set up a logger that writes logs to both console and a file.
+    Ensures no duplicate logs in the console and file.
     """
+    logger = logging.getLogger('ADVF')
+    logger.setLevel(logging.INFO)  # Set logging level to INFO (or as needed)
 
-    # Create the logs directory if it doesn't exist
-    if not os.path.exists('logs'):
-        os.makedirs('logs')
+    # Clear any existing handlers to prevent duplication
+    if logger.hasHandlers():
+        logger.handlers.clear()
 
-    # Set up logger
-    logger = logging.getLogger('DataTestAutomation')
-    logger.setLevel(log_level)
+    # Create a file handler to write logs to a file
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)  # You can adjust this level if needed
 
-    # Log to file with overwrite (write mode)
-    file_handler = logging.FileHandler(log_file, mode='w')  # Open file in write mode
-    file_handler.setLevel(log_level)
-
-    # Format for logs including milliseconds for more accurate timestamps
-    file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', 
-                                       datefmt='%Y-%m-%d %H:%M:%S')  # Custom date format
-    file_handler.setFormatter(file_formatter)
-
-    # Log to console with the same format
+    # Create a console handler to print logs to the console
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(log_level)
-    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s', 
-                                                  datefmt='%Y-%m-%d %H:%M:%S'))  # Apply same formatter for console output
+    console_handler.setLevel(logging.INFO)
 
-    # Add handlers to logger
+    # Create a formatter and add it to the handlers
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+
+    # Add the handlers to the logger
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
 
     return logger
-
