@@ -13,7 +13,7 @@ def setup_logger(log_file='logs/validation.log'):
         logger.handlers.clear()
 
     # Create a file handler to write logs to a file
-    file_handler = logging.FileHandler(log_file)
+    file_handler = logging.FileHandler(log_file,mode='w')
     file_handler.setLevel(logging.INFO)  # You can adjust this level if needed
 
     # Create a console handler to print logs to the console
