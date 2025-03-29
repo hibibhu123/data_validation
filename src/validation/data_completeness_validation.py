@@ -1,3 +1,4 @@
+from datetime import date, datetime
 import os
 from utils.logging_setup import setup_logger
 from utils.spark_setup import create_spark_session, spark_session  # Import the global spark_session
@@ -104,3 +105,37 @@ def get_full_data(sql, location, object_name):
         logger.error(f"Unsupported location type: {location}")
         return []
 
+def normalize_value(value):
+    """
+    Converts various data types into a consistent format for comparison:
+    - Converts `datetime.date`, `datetime.datetime` to `'YYYY-MM-DD'`
+    - Converts `'DD-MMM-YY'` (Oracle style) to `'YYYY-MM-DD'`
+    - Converts `800.0` (float) to `800` (integer)
+    - Ensures `None` values are handled correctly
+    """
+    if isinstance(value, (datetime, date)):  
+        return value.strftime('%Y-%m-%d')  # Convert date to standard format
+
+    elif isinstance(value, str):
+        try:
+            # Convert Oracle-style '17-DEC-80' to 'YYYY-MM-DD'
+            return datetime.strptime(value, '%d-%b-%y').strftime('%Y-%m-%d')
+        except ValueError:
+            # Try 'YYYY-MM-DD' format (already correct)
+            try:
+                return datetime.strptime(value, '%Y-%m-%d').strftime('%Y-%m-%d')
+            except ValueError:
+                return value  # Return as-is if not a date format
+
+    elif isinstance(value, float) and value.is_integer():  
+        return int(value)  # Convert 800.0 to 800
+    
+    return value  # Return non-date, non-numeric values as-is
+
+
+def normalize_data_values(data):
+    """
+    Normalize all data values before comparison.
+    Converts dates to 'yyyy-MM-dd' format to ensure uniformity across sources.
+    """
+    return [tuple(normalize_value(value) for value in row) for row in data]
