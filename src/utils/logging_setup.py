@@ -1,4 +1,5 @@
 import logging
+import sys
 
 def setup_logger(log_file='logs/validation.log'):
     """
@@ -13,11 +14,11 @@ def setup_logger(log_file='logs/validation.log'):
         logger.handlers.clear()
 
     # Create a file handler to write logs to a file
-    file_handler = logging.FileHandler(log_file,mode='w')
+    file_handler = logging.FileHandler(log_file, mode='w', encoding='utf-8')  # Ensure file output uses UTF-8 encoding
     file_handler.setLevel(logging.INFO)  # You can adjust this level if needed
 
-    # Create a console handler to print logs to the console
-    console_handler = logging.StreamHandler()
+    # Create a console handler to print logs to the console with UTF-8 support
+    console_handler = logging.StreamHandler(sys.stdout)  # Use sys.stdout for better control
     console_handler.setLevel(logging.INFO)
 
     # Create a formatter and add it to the handlers
