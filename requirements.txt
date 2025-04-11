@@ -28,6 +28,12 @@ loguru==0.6.0  # Enhanced logging
 #Reporting
 allure-pytest
 allure-behave
+behave-html-formatter
+
+
+#HTML to pdf conversion
+pdfkit
+weasyprint
 
 
 #enviornment variable
