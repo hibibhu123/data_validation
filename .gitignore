@@ -1,33 +1,32 @@
-
-# Python
+# Ignore specific file extensions and directories
 *.pyc
 *__pycache__/
 
-#pytest
+# Ignore pytest cache
 .pytest_cache/
 
-# IDE specific folders
+# Ignore IDE specific files
 .vscode/
 
-# .env file for environment variables
+# Ignore the .env file
 .env
 
-#Report output
+# Ignore generated reports
 allure-report/
 reports/
 
-# Virtual environments
+# Ignore virtual environments
 venv/
 env/
 
-#logs
+# Ignore log files
 logs/
 
-#input
+# Ignore input files
 src/config/
 
-#Automatic featurefile content
+# Ignore feature file for automation
 features/validation.feature
 
-#output test result
+# Ignore output directory
 output/
