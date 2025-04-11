@@ -1,3 +1,0 @@
-﻿Sl_No,Source_Location,Source_Object,Source_SQL,Target_Location,Target_Object,Target_SQL,Validation_Type,Action
-1,MYSQL,city,select count(*) from world.city1,LOCAL,C:\Users\Bibhuprasad.Mohanty\Desktop\city.csv,select count(*) from city,data count,yes
-1,MYSQL,city,select count(*) from world.city1,LOCAL,C:\Users\Bibhuprasad.Mohanty\Desktop\city.csv,select count(*) from city,data completeness,no
