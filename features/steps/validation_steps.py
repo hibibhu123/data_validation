@@ -62,6 +62,9 @@ def step_impl_validation_success(context, validation_type):
     
     # Use the validation result stored in context from the @when step
     validation_result = context.validation_result
+
+    logger.info('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+    logger.info(validation_result)
       
     # Assert that the validation was successful
     assert "passed" in validation_result, f"{validation_type} validation failed: {validation_result}"

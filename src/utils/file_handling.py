@@ -60,10 +60,9 @@ def generate_feature_file(csv_data, feature_file_path):
     # Define the Gherkin scenario template
     feature_template = """Feature: Data Validation
 
-    Scenario Outline: DataValidation
+    Scenario Outline: <Sl_No>_<Source_Object>_<Target_Object>_<Validation_Type>
         Given I connect to the source "<Source_Object>" in "<Source_Location>"
         And I connect to the target "<Target_Object>" in "<Target_Location>"
-
         When I perform "<Validation_Type>" validation using source SQL "<Source_SQL>" and target SQL "<Target_SQL>"
         Then the "<Validation_Type>" validation between source and target is successful
 
@@ -80,14 +79,14 @@ def generate_feature_file(csv_data, feature_file_path):
 
     # Add the headers (column names) from the filtered CSV data as the first row in the Examples section
     # Remove the 'Action' column from headers before writing
-    headers = [header for header in filtered_data[0].keys() if header.lower() not in ["action", "sl_no"] ]
+    headers = [header for header in filtered_data[0].keys() if header.lower() not in ["action"] ]
     header_row = "    | " + " | ".join(headers) + " |"  # Format the headers for the feature file
     feature_template += "\n" + header_row  # Append headers to the feature template
 
     # Add examples from filtered CSV data
     for row in filtered_data:
-        # Remove the 'Action' column from each row before adding to examples
-        example_row = "    | " + " | ".join([row[field] for field in headers]) + " |"  # Format each row of data
+        # Add the Sl_No, Source_Object, Target_Object in the scenario name and example
+        example_row = "    | " + " | ".join([str(row[field]) for field in headers]) + " |"  # Format each row of data
         feature_template += "\n" + example_row  # Append each example row to the feature template
         logger.debug(f"Added example row: {example_row}")
 
@@ -97,4 +96,3 @@ def generate_feature_file(csv_data, feature_file_path):
 
     logger.info(f"Feature file {feature_file_path} generated successfully.")
     logger.info(f"Generated Feature File Content:\n{feature_template}\n")
-

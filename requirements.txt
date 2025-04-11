@@ -32,3 +32,4 @@ allure-behave
 
 #enviornment variable
 python-dotenv
+cx_Oracle
