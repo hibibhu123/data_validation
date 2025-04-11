@@ -1,37 +1,61 @@
 import os
 import shutil
 import subprocess
+import webbrowser
+from pathlib import Path
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env
+load_dotenv()
 
 def run_tests():
-    # Define the paths
-    feature_dir = "features"
-    report_dir = "reports"
-    allure_report_dir = "allure-report"
+    html_report_dir = os.getenv("HTML_REPORT_PATH")
 
-    # Ensure the report directory is deleted if it exists
-    if os.path.exists(report_dir):
-        shutil.rmtree(report_dir)
-    os.makedirs(report_dir)
+    if not html_report_dir:
+        print(" HTML_REPORT_PATH not found in .env file.")
+        return
 
-    # Add Allure to PATH
-    os.environ["PATH"] += os.pathsep + "C:\\allure-2.32.0\\bin"
+    # Convert to Path object for easy manipulation
+    report_path = Path(html_report_dir).expanduser().resolve()
+    html_file = report_path / "test_execution_report.html"
+    print(html_file)
 
+    # Clean and recreate report directory
+    if report_path.exists():
+        shutil.rmtree(report_path)
+    report_path.mkdir(parents=True, exist_ok=True)
+
+    print(f"📂 HTML report will be saved to: {html_file}")
+
+    # Run Behave tests with HTML formatter
     try:
-        # Run the tests with Behave and Allure formatter
-        result = subprocess.run("behave -f allure_behave.formatter:AllureFormatter -o " + report_dir, shell=True)
-        
-        # Check the result of subprocess (if tests failed)
-        if result.returncode != 0:
-            print(f"Tests failed with return code {result.returncode}. But we'll generate the Allure report.")
+        print(" Running Behave tests...")
+        result = subprocess.run(
+            [
+                "behave",
+                "-f", "behave_html_formatter:HTMLFormatter",
+                "-o", str(html_file)
+            ],
+            capture_output=True,
+            text=True
+        )
 
-        # Generate the Allure report with --clean option
-        subprocess.run("allure generate " + report_dir + " -o " + allure_report_dir + " --clean", shell=True, check=True)
+        print(result.stdout)
+        if result.stderr:
+            print("⚠️ STDERR:\n", result.stderr)
 
-        # Serve the Allure report
-        subprocess.run("allure open " + allure_report_dir, shell=True, check=True)
+        # Open the report
+        if html_file.exists():
+            print("🌐 Opening HTML report in browser...")
+            webbrowser.open(f"file:///{html_file}")
+        else:
+            print(" Report was not generated.")
 
     except subprocess.CalledProcessError as e:
-        print(f"An error occurred: {e}")
+        print(f" Error running Behave tests: {e}")
 
 if __name__ == "__main__":
     run_tests()
+
+   
