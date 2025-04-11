@@ -23,6 +23,11 @@ env/
 #logs
 logs/
 
-config/
+#input
+src/config/
 
+#Automatic featurefile content
 features/validation.feature
+
+#output test result
+output/
