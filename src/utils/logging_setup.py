@@ -1,7 +1,12 @@
 import logging
 import sys
+import os
+from dotenv import load_dotenv
 
-def setup_logger(log_file='logs/validation.log'):
+# Load environment variables from .env file
+load_dotenv()  # This automatically loads the variables defined in the .env file
+
+def setup_logger():
     """
     Set up a logger that writes logs to both console and a file.
     Ensures no duplicate logs in the console and file.
@@ -9,12 +14,15 @@ def setup_logger(log_file='logs/validation.log'):
     logger = logging.getLogger('ADVF')
     logger.setLevel(logging.INFO)  # Set logging level to INFO (or as needed)
 
+    # Fetch the log file path from the environment variable
+    log_file_path = os.getenv('LOG_FILE_PATH', './logs/validation_execution.log')  # Default to './logs/validation_execution.log' if not set
+
     # Clear any existing handlers to prevent duplication
     if logger.hasHandlers():
         logger.handlers.clear()
 
     # Create a file handler to write logs to a file
-    file_handler = logging.FileHandler(log_file, mode='w', encoding='utf-8')  # Ensure file output uses UTF-8 encoding
+    file_handler = logging.FileHandler(log_file_path, mode='w', encoding='utf-8')  # Ensure file output uses UTF-8 encoding
     file_handler.setLevel(logging.INFO)  # You can adjust this level if needed
 
     # Create a console handler to print logs to the console with UTF-8 support
@@ -31,3 +39,7 @@ def setup_logger(log_file='logs/validation.log'):
     logger.addHandler(console_handler)
 
     return logger
+
+# Example usage:
+logger = setup_logger()
+logger.info("Logger setup successfully")

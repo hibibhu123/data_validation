@@ -3,10 +3,11 @@ import shutil
 import csv
 import logging
 import re
+from src.utils.file_handling import read_csv_data
+from src.utils.logging_setup import setup_logger
 
 from dotenv import load_dotenv  # For regular expression matching
-from utils.file_handling import read_csv_data
-from utils.logging_setup import setup_logger
+
 # Load environment variables from .env file
 load_dotenv()  # This automatically loads the variables defined in the .env file
 
