@@ -16,10 +16,21 @@ logger = setup_logger()
 
 
 def before_all(context):
-    output_file_path = os.getenv('OUTPUT_CSV_FILE_PATH')
+    input_file_path = os.getenv("INPUT_CSV_TEMPLATE_PATH")
+    output_file_path = os.getenv("OUTPUT_CSV_FILE_PATH")
+
+    # Remove old output file
     if os.path.exists(output_file_path):
         os.remove(output_file_path)
         logger.info("Old output file removed before test run.")
+
+    # Attempt to generate a new one if input exists
+    if os.path.exists(input_file_path):
+        ensure_output_file_exists(input_file_path, output_file_path)
+        logger.info("Output file generated at test start.")
+    else:
+        logger.warning(f"Input file does not exist yet: {input_file_path}. Output will not be created now.")
+
 
 def after_all(context):
     """
@@ -128,7 +139,7 @@ def after_scenario(context, scenario):
         output_file_path =os.getenv('OUTPUT_CSV_FILE_PATH')
         
         # Ensure the output file is generated if not present
-        ensure_output_file_exists(input_file_path, output_file_path)
+        #ensure_output_file_exists(input_file_path, output_file_path)
 
         # Read input and update validation status only if Action is yes
         input_data = read_csv_data(input_file_path)

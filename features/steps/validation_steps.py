@@ -17,11 +17,11 @@ connection_manager = ConnectionManager()
 load_dotenv()  # This automatically loads the variables defined in the .env file
 
 # Fetch the parameter values from .env
-input_csv_template_path = os.getenv('INPUT_CSV_TEMPLATE_PATH')
-feature_file_path = os.path.join(os.getenv('FEATURE_FILE_PATH'), "validation.feature")
+#input_csv_template_path = os.getenv('INPUT_CSV_TEMPLATE_PATH')
+#feature_file_path = os.path.join(os.getenv('FEATURE_FILE_PATH'), "validation.feature")
 
 # Call feature file generation funtion here
-generate_feature_file(read_csv_data(input_csv_template_path),feature_file_path)
+#generate_feature_file(read_csv_data(input_csv_template_path),feature_file_path)
 
 @given('I connect to the source "{source_object}" in "{source_location}"')
 def step_impl_connect_source(context, source_object, source_location):
