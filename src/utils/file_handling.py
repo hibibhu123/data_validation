@@ -47,6 +47,15 @@ def read_config_data(file_path):
 
     return config_data
 
+def clean_sql(sql_text):
+    """
+    Removes newlines and excess spaces from SQL text to make it Gherkin-compatible.
+    """
+    if not isinstance(sql_text, str):
+        return sql_text
+    return ' '.join(sql_text.split())  # replaces all newlines, tabs, multiple spaces with single space
+
+
 def generate_feature_file(csv_data, feature_file_path):
     """
     Filters the CSV data to only include rows with 'Action == yes' and generates a Gherkin feature file.
@@ -86,7 +95,9 @@ def generate_feature_file(csv_data, feature_file_path):
     # Add examples from filtered CSV data
     for row in filtered_data:
         # Add the Sl_No, Source_Object, Target_Object in the scenario name and example
-        example_row = "    | " + " | ".join([str(row[field]) for field in headers]) + " |"  # Format each row of data
+       # example_row = "    | " + " | ".join([str(row[field]) for field in headers]) + " |"  # Format each row of data
+        example_row = "    | " + " | ".join([clean_sql(row[field]) if 'sql' in field.lower() else str(row[field]) for field in headers]) + " |"
+
         feature_template += "\n" + example_row  # Append each example row to the feature template
         logger.debug(f"Added example row: {example_row}")
 
