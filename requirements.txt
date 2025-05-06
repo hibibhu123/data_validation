@@ -4,10 +4,13 @@ behave==1.2.6
 pytest==7.2.2
 
 # Data manipulation and file handling
+numpy==1.26.0
 pandas==2.1.0
 pyarrow==12.0.0
 pyspark==3.4.1
 requests==2.31.0
+
+
 
 # Cloud Storage SDKs
 boto3==1.26.2  # AWS SDK

@@ -92,9 +92,18 @@ def get_metadata(location, object_name):
             metadata = [(row[0], normalize_data_type(row[1])) for row in result]
 
         elif location.lower() == "oracle":
+
+            # Extract schema and table from object_name
+            if '.' in object_name:
+                 schema_name, table_name = object_name.split('.')
+            else:
+                schema_name = "SYS_CONTEXT('USERENV', 'CURRENT_SCHEMA')"  # fallback to current schema
+                table_name = object_name
+            logger.info(f"table name is: {table_name}")
+            logger.info(f"schema name is: {schema_name}")
             # Oracle query to get metadata
             cursor = connection.cursor()
-            cursor.execute(f"SELECT column_name, data_type FROM all_tab_columns WHERE table_name = '{object_name.upper()}'")
+            cursor.execute(f"SELECT column_name, data_type FROM all_tab_columns WHERE table_name = '{table_name.upper()}' AND owner = '{schema_name.upper()}'")
             result = cursor.fetchall()
             cursor.close()
 

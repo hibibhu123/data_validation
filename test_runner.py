@@ -31,6 +31,7 @@ def copy_environment_file():
 def run_tests():
     # Fetch all paths from .env
     input_csv_template_path = os.getenv("INPUT_CSV_TEMPLATE_PATH")
+    sql_file_base_path = os.getenv("SQL_FILE_PATH")
     input_feature_dir = os.getenv("FEATURE_FILE_PATH")
     feature_file_name = os.getenv("FEATURE_FILE_NAME", "validation.feature")
     step_defs_path = os.getenv("STEPS_DIR_PATH")
@@ -50,6 +51,8 @@ def run_tests():
     html_report_path = Path(html_report_dir).expanduser().resolve()
     html_file = html_report_path / "test_execution_report.html"
 
+    print(f"input CSV file path: {input_csv_template_path}")
+    print(f"sql file path      : {sql_file_base_path}")
     print(f"Feature Dir        : {feature_dir_path}")
     print(f"Feature File       : {feature_file_path}")
     print(f"Steps Source Dir   : {step_defs_path}")
@@ -83,8 +86,9 @@ def run_tests():
     # Copy environment.py before running tests
     copy_environment_file()
 
-    # Generate feature file AFTER copying step defs and environment.py
-    generate_feature_file(read_csv_data(input_csv_template_path), str(feature_file_path))
+    # Pass the sql_file_base_path to generate_feature_file
+    generate_feature_file(read_csv_data(input_csv_template_path), str(feature_file_path), sql_file_base_path)
+
 
     # Run Behave with the dynamically generated feature file path
     print("Running Behave tests with Allure and HTML formatters...")

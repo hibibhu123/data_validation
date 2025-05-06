@@ -1,7 +1,10 @@
+from dotenv import load_dotenv
+from utils.generate_sql_files import read_sql_from_file
 from validation.count_validation import get_row_count
 from validation.data_completeness_validation import get_full_data, normalize_data_values
 from validation.metadata_validation import get_metadata
 from utils.logging_setup import setup_logger
+
 
 logger = setup_logger()
 
@@ -9,6 +12,12 @@ def perform_validation(validation_type, source_sql, target_sql, context):
     """ Perform the appropriate validation based on the validation type """
 
     try:
+        # Read SQL from files
+        source_sql = read_sql_from_file(source_sql)
+        target_sql = read_sql_from_file(target_sql)
+        logger.info(source_sql)
+        logger.info(target_sql)
+
         if validation_type.lower() == "metadata":
             logger.info(f"Performing metadata validation for source: {context.source_object} and target: {context.target_object}")
 

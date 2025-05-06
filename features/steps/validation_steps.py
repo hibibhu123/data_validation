@@ -30,7 +30,7 @@ def step_impl_connect_source(context, source_object, source_location):
     # Store in context to use later in other steps if needed
     context.source_object = source_object
     context.source_location = source_location
-    connection_manager.get_connection(source_location, source_object)
+    connection_manager.get_connection(context.source_location, context.source_object)
 
 @given('I connect to the target "{target_object}" in "{target_location}"')
 def step_impl_connect_target(context, target_object, target_location):
@@ -40,7 +40,7 @@ def step_impl_connect_target(context, target_object, target_location):
 
     # Use the target_object and target_location directly from the feature file
     logger.info(f"Connecting to target: {target_object} at {target_location}")
-    connection_manager.get_connection(target_location, target_object)
+    connection_manager.get_connection(context.target_location, context.target_object)
 
 @when('I perform "{validation_type}" validation using source SQL "{source_sql}" and target SQL "{target_sql}"')
 def step_impl_validation(context, validation_type, source_sql, target_sql):
@@ -50,7 +50,7 @@ def step_impl_validation(context, validation_type, source_sql, target_sql):
     context.target_sql = target_sql
     
     # Call the helper function to perform the validation
-    validation_result = perform_validation(validation_type, source_sql, target_sql, context)
+    validation_result = perform_validation(context.validation_type, context.source_sql, context.target_sql, context)
     
     # Store the result in context (if needed) for use in the next step
     context.validation_result = validation_result

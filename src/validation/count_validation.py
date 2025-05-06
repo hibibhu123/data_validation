@@ -1,4 +1,5 @@
 import os
+from utils.generate_sql_files import read_sql_from_file
 from utils.spark_setup import create_spark_session, spark_session  # Import the global spark_session
 from utils.logging_setup import setup_logger
 from utils.connection_manager import ConnectionManager  # Import the ConnectionManager
@@ -25,6 +26,12 @@ def get_row_count(sql_query, location, object_name):
     Returns:
         int: The row count result from executing the SQL query.
     """
+        # Check if sql_query is a file path (check if it is a valid file path on the local system)
+    logger.info("666666666666666666666666666666666666666666666666666")    
+    if os.path.isfile(sql_query):
+        logger.info(f"Reading SQL query from file {sql_query}")
+        sql_query = read_sql_from_file(sql_query)  # Read SQL from the file
+
     # Check the location type to determine how to process the query
     if location.strip().lower() == "local":
         # If the source/target is a local file (e.g., CSV, Parquet)

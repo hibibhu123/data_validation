@@ -1,5 +1,6 @@
 import csv
 import os
+from utils.generate_sql_files import generate_sql_files_from_csv
 from utils.logging_setup import setup_logger
 
 # Initialize the logger
@@ -56,15 +57,19 @@ def clean_sql(sql_text):
     return ' '.join(sql_text.split())  # replaces all newlines, tabs, multiple spaces with single space
 
 
-def generate_feature_file(csv_data, feature_file_path):
+def generate_feature_file(csv_data, feature_file_path, sql_file_base_path):
     """
     Filters the CSV data to only include rows with 'Action == yes' and generates a Gherkin feature file.
-    The 'Action' column will not be included in the feature file.
+    The 'Action' column will not be included in the feature file, and SQL file paths will be used for source and target SQL.
 
     Args:
         csv_data (list): A list of dictionaries representing the rows in the CSV file.
         feature_file_path (str): Path where the generated feature file will be saved.
+        sql_file_base_path (str): Path where SQL files will be created.
     """
+
+    # Call the function to generate SQL files and get paths for source and target SQL
+    sql_paths = generate_sql_files_from_csv(csv_data, sql_file_base_path)
 
     # Define the Gherkin scenario template
     feature_template = """Feature: Data Validation
@@ -94,9 +99,21 @@ def generate_feature_file(csv_data, feature_file_path):
 
     # Add examples from filtered CSV data
     for row in filtered_data:
+        sl_no = int(row["Sl_No"])
+
+        # Fetch the SQL paths for the scenario
+        scenario_sql = sql_paths.get(sl_no, {})
+
+        # Replace the placeholders for Source_SQL and Target_SQL with the actual SQL file paths
+        source_sql_path = scenario_sql.get("source", "NA")
+        target_sql_path = scenario_sql.get("target", "NA")
+
         # Add the Sl_No, Source_Object, Target_Object in the scenario name and example
-       # example_row = "    | " + " | ".join([str(row[field]) for field in headers]) + " |"  # Format each row of data
-        example_row = "    | " + " | ".join([clean_sql(row[field]) if 'sql' in field.lower() else str(row[field]) for field in headers]) + " |"
+        example_row = "    | " + " | ".join([
+            str(row[field]) if field.lower() not in ["source_sql", "target_sql"] else (
+                source_sql_path if field.lower() == "source_sql" else target_sql_path
+            ) for field in headers
+        ]) + " |"
 
         feature_template += "\n" + example_row  # Append each example row to the feature template
         logger.debug(f"Added example row: {example_row}")
