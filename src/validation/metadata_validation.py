@@ -1,6 +1,6 @@
 from datetime import date, datetime
 import os
-from utils.connection_manager import ConnectionManager
+from utils.connection_manager import get_connection
 from utils.logging_setup import setup_logger
 from utils.spark_setup import create_spark_session
 from pyspark.sql.functions import to_date, col   
@@ -8,9 +8,6 @@ from pyspark.sql.functions import to_date, col
 
 # Initialize the logger 
 logger = setup_logger()
-
-# Initialize connection manager
-connection_manager = ConnectionManager()
 
 #Initialize Spark session
 spark_session=create_spark_session()
@@ -79,7 +76,7 @@ def get_metadata(location, object_name):
     else:
         # If the location is not "local", it must be an RDBMS
         # Get connection using ConnectionManager
-        connection = connection_manager.get_connection(location, object_name)
+        connection = get_connection(location, object_name)
 
         if location.lower() in ["mysql", "postgres"]:
             # For MySQL/Postgres, use DESCRIBE/SHOW COLUMNS

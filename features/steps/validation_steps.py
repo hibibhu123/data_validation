@@ -1,20 +1,21 @@
 import os
 from behave import given, when, then
 from dotenv import load_dotenv
-from src.utils.connection_manager import ConnectionManager
+from src.utils.connection_manager import get_connection
 from validation.count_validation import get_row_count
 from utils.file_handling import generate_feature_file, read_csv_data
 from utils.logging_setup import setup_logger
 from validation.all_validations import perform_validation
 
+#load_dotenv() 
 # Initialize the logger
 logger = setup_logger()
 
 # Initialize connection manager
-connection_manager = ConnectionManager()
+#connection_manager = ConnectionManager()
 
 # Load environment variables from .env file
-load_dotenv()  # This automatically loads the variables defined in the .env file
+ # This automatically loads the variables defined in the .env file
 
 # Fetch the parameter values from .env
 #input_csv_template_path = os.getenv('INPUT_CSV_TEMPLATE_PATH')
@@ -25,12 +26,17 @@ load_dotenv()  # This automatically loads the variables defined in the .env file
 
 @given('I connect to the source "{source_object}" in "{source_location}"')
 def step_impl_connect_source(context, source_object, source_location):
-    # Use the provided source_object and source_location directly from the feature file
-    logger.info(f"Connecting to source: {source_object} at {source_location}")
-    # Store in context to use later in other steps if needed
     context.source_object = source_object
     context.source_location = source_location
-    connection_manager.get_connection(context.source_location, context.source_object)
+
+    try:
+        logger.info(f"[START] Connecting to source: {context.source_object} at {context.source_location}")
+        get_connection(context.source_location, context.source_object)
+        logger.info(f"[SUCCESS] Connected to source: {source_object} at {source_location}")
+    except Exception as e:
+        logger.error(f"[ERROR] Failed to connect to source: {source_object} at {source_location}. Error: {e}")
+        raise
+
 
 @given('I connect to the target "{target_object}" in "{target_location}"')
 def step_impl_connect_target(context, target_object, target_location):
@@ -40,7 +46,7 @@ def step_impl_connect_target(context, target_object, target_location):
 
     # Use the target_object and target_location directly from the feature file
     logger.info(f"Connecting to target: {target_object} at {target_location}")
-    connection_manager.get_connection(context.target_location, context.target_object)
+    get_connection(context.target_location, context.target_object)
 
 @when('I perform "{validation_type}" validation using source SQL "{source_sql}" and target SQL "{target_sql}"')
 def step_impl_validation(context, validation_type, source_sql, target_sql):

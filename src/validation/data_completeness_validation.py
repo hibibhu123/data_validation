@@ -2,14 +2,14 @@ from datetime import date, datetime
 import os
 from utils.logging_setup import setup_logger
 from utils.spark_setup import create_spark_session, spark_session  # Import the global spark_session
-from utils.connection_manager import ConnectionManager
+from utils.connection_manager import get_connection
 from pyspark.sql import Row
 
 # Initialize the logger
 logger = setup_logger()
 
 # Initialize connection manager
-connection_manager = ConnectionManager()
+#connection_manager = ConnectionManager()
 
 #Initialize Spark session
 spark_session=create_spark_session()
@@ -78,7 +78,7 @@ def get_full_data(sql, location, object_name):
         logger.info(f"Fetching data for object {object_name} in {location.upper()} database")
 
         # Fetch the connection using the ConnectionManager
-        connection = connection_manager.get_connection(location, object_name)
+        connection = get_connection(location, object_name)
 
         # If the connection is None (failed to establish), return
         if connection is None:
